@@ -49,3 +49,41 @@ class Solution {
 }
 
 // 法2: 優化
+class Solution {
+    public List<String> findStrobogrammatic(int n) {
+        return helper(n, n);
+    }
+    
+    public List<String> helper(int n, int m) {
+        // base case
+        if (n == 0) {
+            return new ArrayList<String>(Arrays.asList(""));
+        }
+        if (n == 1) {
+            return new ArrayList<String>(Arrays.asList("0", "1", "8"));
+        }
+        
+        // 切成子問題
+        
+        // 子問題（上一層）
+        List<String> list = helper(n - 2, m);
+            
+        // 這一層，要回傳的答案
+        List<String> ans = new ArrayList<>();
+        
+        // 本層要做的事情
+        for (int i = 0; i < list.size(); i ++) {
+            String cur = list.get(i);
+            // 若不是最終層，就可以加入0在兩側
+            if (m != n) {
+                ans.add("0" + cur + "0");
+            }
+            ans.add("1" + cur + "1");
+            ans.add("6" + cur + "9");
+            ans.add("8" + cur + "8");
+            ans.add("9" + cur + "6");
+        }
+        
+        return ans;
+    }
+}

@@ -27,3 +27,30 @@ class Solution {
         }
     }
 }
+
+// 法2:
+class Solution {
+    public boolean isStrobogrammatic(String num) {
+        if(num==null)
+            return true;
+        HashMap<Integer,Integer> hm = new HashMap();
+        hm.put(6,9);
+        hm.put(9,6);
+        hm.put(1,1);
+        hm.put(8,8);
+        hm.put(0,0);
+        int s = 0;
+        int e = num.length()-1;
+        while(e>=s){
+            int start = num.charAt(s)-'0';
+            int end = num.charAt(e)-'0';
+            if(hm.containsKey(start) && hm.get(start)==end){
+                e--;
+                s++;
+            }
+            else
+                return false;
+        }
+        return true;
+    }
+}
