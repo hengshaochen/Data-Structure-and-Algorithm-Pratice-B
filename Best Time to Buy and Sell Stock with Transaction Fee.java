@@ -16,16 +16,6 @@ class Solution {
             notHold[i] = Math.max(notHold[i - 1], hold[i - 1] - fee + prices[i]);
         }
         
-        // for testing
-        /*
-        for (int i = 0; i < len; i++) {
-            System.out.print(hold[i] + " ");
-        }
-        System.out.println(" ");
-        for (int i = 0; i < len; i++) {
-            System.out.print(notHold[i] + " ");
-        } 
-        */
         return notHold[len - 1];
     }
 }
