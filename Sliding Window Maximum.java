@@ -49,6 +49,9 @@ class Solution {
         Deque<Integer> q = new ArrayDeque<>();
     }
     public int[] maxSlidingWindow(int[] nums, int k) {
+        if (nums == null || nums.length == 0) {
+            return new int[0];
+        }
         monotonicQueue mq = new monotonicQueue();
         int[] ans = new int[nums.length - k + 1];
         
