@@ -1,6 +1,30 @@
-#include <iostream>
-using namespace std;
+class CashRegister
+{
+public:
+    CashRegister();
+    ~CashRegister();
 
+    // the customer has paid money,
+    // that money is already in the till
+    // Now, dispense change
+    void MakeChange( double amountPaid, double amountOwed );
+    bool dfsHelper(double startIndex, double currentAmount, double amountOwned);
+private:
+
+    // how much money is in the cash register?
+    double TotalInRegister() const;
+
+    // remove coins/bills from the till and give them to the customer
+    void Dispense( denomination d, int count );
+
+    // there is a problem!
+    void ReportError( char *text ) const;
+
+private:
+
+    // the cash register holds zero or more of these
+    // bills and coins in the Till.
+    // The value of the enum is its worth in cents
     enum denomination
     {
         kPenny = 1,
@@ -17,88 +41,120 @@ using namespace std;
     };
 
     // This is the till.  All bills and coins are stored here
-    map< denomination, int > mTill;
-    map< denomination, int > amountCoin;
-    // enum相當於把kPenny的值定義成1
-    // coin[0]的值是1, 可以存取到denomination中的kPenny
+    std::map< denomination, int > mTill;
+    // store the valid answer of makeChange
+    std:map< denomination, int > returnCoins;
+    // build a mapping relationship for denomination
     int coin[] = {1, 5, 10, 25, 50, 100, 500, 1000, 2000, 5000, 10000};
-    //size_t sizeCoinArray = sizeof(coin) / sizeof(coin[0]);
+    // total number of denomination
     const int numsDenomination = 11;
+    
+    // This is the LCD display on the cash register
+    std::ostream mDisplay;
+};
 
+// -------------------------------------------------------
+// Function:    CashRegister::TotalInRegister
+// Purpose:     how much money is in the cash register?
 
- bool dfs(int startIndex, int currentAmount, int amountOwned) {
-    // base case
-     if (currentAmount > amountOwned) {
-         return false;
-     }
-     if (currentAmount == amountOwned) {
-         // 遍歷Map判斷是否Till中每種面值是否皆有足夠的數量
-        map<denomination, int>::iterator iter;
-        iter = amountCoin.begin();
-        while(iter != amountCoin.end()) {
-            if (iter->second > mTill[(denomination)iter->first]) {
-                return false;
-            }
-            iter++;
-        }
-         
-        // 從mTill中扣除
-        iter = amountCoin.begin();
-        while(iter != amountCoin.end()) {
-            mTill[(denomination)iter->first] -= iter->second;
-            iter++;
-        }
-        return true;
-     }
-     
-     for (int i = startIndex; i < numsDenomination; i++) {
-         currentAmount += coin[i];
-         amountCoin[(denomination)coin[i]]++;
-         
-         bool find = dfs(startIndex, currentAmount, amountOwned);
-         // 如果找到了一組解，直接回傳這組解就可以
-         if (find == true) {
-             return true;
-         }
-         
-         currentAmount -= coin[i];
-         amountCoin[(denomination)coin[i]]--;
-     }
-     
-     return false;
+double CashRegister::TotalInRegister() const
+{
+    int total(0);
+    std::map< denomination, int >::iterator it = till.begin();
+    for ( ; it != till.end(); it++ )
+        total += ((int) it->first) * it->second;
+    return total / 100.0;
+}
+
+// -------------------------------------------------------
+// Function:    CashRegister::Dispense
+// Purpose:     remove coins/bills from the till and give them to the customer
+
+void CashRegister::Dispense( denomination d, int count )
+{
+    mTill[ d ] -= count;
+}
+
+// -------------------------------------------------------
+// Function:    CashRegister::ReportError
+// Purpose:     there is a problem!
+
+void CashRegister::ReportError( char *text ) const
+{
+    // show the problem on the display 
+    mDisplay << text;
 }
 
 
-int main() {
+// ******************************
+//     <insert your code here>
+// ******************************
+// -------------------------------------------------------
+// Function:    CashRegister::MakeChange
+// Purpose:     the customer has paid money, that money is already in the till
+//              Now, dispense change.
+
+// Method:      Use returnCoins<denomination, int> to store one valid answer that is able to dispense change to customer.
+//              Use Depth First Search + Greedy(Prefer to use Large denomination) to find all possible solution and if the current amount is equal to amountOwed AND all the amount of denomination in till > amount of denomination in returnCoins --> it is a valid answer.
+void CashRegister::MakeChange( double amountPaid, double amountOwed ) {
+    bool find = dfsHelper(numsDenomination - 1, 0, amountOwned);
     
-    int amountOwned = 12;
-    for (int i = 0; i < numsDenomination; i++) {
-        mTill[(denomination)coin[i]] = 100;
-    }
-        mTill[(denomination)coin[0]] = 2;
-        mTill[(denomination)coin[1]] = 0;
-    
-    map< denomination, int > returnCoin;
-    bool find = dfs(0, 0, amountOwned);
-    map<denomination, int>::iterator iter2;
+    // print out the answer if exist
+    map<denomination, int>::iterator it;
     if (find == true) {
-        // 全部面值數量都夠 --> 印出找到的答案
-        cout << "customer return coin:" << endl;
-        iter2 = amountCoin.begin();
-         while (iter2 != amountCoin.end()) {
-            cout << iter2->first << " : " << iter2->second << endl;
-            iter2++;
-         }
+        // found a valid answer, print it out.
+        std::cout << "Here is your change:" << endl;
+        it = returnCoins.begin();
+        while (it != returnCoins.end()) {
+            std::cout << "denomination: " << it->first << ", amount:" << it->second << endl;
+            it++;
+        }
     } else {
-        cout << "don't have enough coin to makeChange" << endl;
+        std::cout << "does not have enough coins to makeChange" << endl;
     }
     
-    cout << "mTill remaining coin:" << endl;
-    iter2 = mTill.begin();
-    while (iter2 != mTill.end()) {
-        cout << iter2->first << " : " << iter2->second << endl;
-        iter2++;
-    }
 }
 
+bool CashRegister::dfsHelper(double startIndex, double currentAmount, double amountOwned) {
+    // base case
+   if (currentAmount > amountOwned) {
+       return false;
+   }
+   if (currentAmount == amountOwned) {
+    // make sure all the amount of denomination in till > amount of denomination in returnCoins
+    map<denomination, int>::iterator iter;
+    iter = returnCoins.begin();
+    while(iter != returnCoins.end()) {
+        if (iter->second > mTill[(denomination)iter->first]) {
+            return false;
+        }
+        iter++;
+    }
     
+    // remove the amount of denomination from till
+    iter = returnCoins.begin();
+    while(iter != returnCoins.end()) {
+        Dispense((denomination)iter->first, iter->second);
+        iter++;
+    }
+    return true;
+}
+
+    // Greedy + DFS
+    for (int i = startIndex; i >= 0; i--) {
+       currentAmount += coin[i];
+       returnCoins[(denomination)coin[i]]++;
+
+       bool find = dfsHelper(i, currentAmount, amountOwned);
+        // if ALREADY found the valid solution, then return it directly 
+        // (The customer does not have any requirement on the types of coins/bills returned as long as the total amount is correct.)
+        if (find == true) {
+            return true;
+        }
+
+        // backtracking
+        currentAmount -= coin[i];
+        returnCoins[(denomination)coin[i]]--;
+    }
+    return false;
+}
