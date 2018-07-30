@@ -98,7 +98,6 @@ void CashRegister::ReportError( char *text ) const
 //              Use Depth First Search + Greedy(Prefer to use Large denomination) to find all possible solution and if the current amount is equal to amountOwed AND all the amount of denomination in till > amount of denomination in returnCoins --> it is a valid answer.
 void CashRegister::MakeChange( double amountPaid, double amountOwed ) {
     bool find = dfsHelper(numsDenomination - 1, 0, amountOwned);
-    
     // print out the answer if exist
     map<denomination, int>::iterator it;
     if (find == true) {
@@ -112,7 +111,6 @@ void CashRegister::MakeChange( double amountPaid, double amountOwed ) {
     } else {
         std::cout << "does not have enough coins to makeChange" << endl;
     }
-    
 }
 
 bool CashRegister::dfsHelper(double startIndex, double currentAmount, double amountOwned) {
@@ -121,25 +119,24 @@ bool CashRegister::dfsHelper(double startIndex, double currentAmount, double amo
        return false;
    }
    if (currentAmount == amountOwned) {
-    // make sure all the amount of denomination in till > amount of denomination in returnCoins
-    map<denomination, int>::iterator iter;
-    iter = returnCoins.begin();
-    while(iter != returnCoins.end()) {
-        if (iter->second > mTill[(denomination)iter->first]) {
-            return false;
+        // make sure all the amount of denomination in till > amount of denomination in returnCoins
+        map<denomination, int>::iterator iter;
+        iter = returnCoins.begin();
+        while(iter != returnCoins.end()) {
+            if (iter->second > mTill[(denomination)iter->first]) {
+                return false;
+            }
+            iter++;
         }
-        iter++;
+        
+        // remove the amount of denomination from till
+        iter = returnCoins.begin();
+        while(iter != returnCoins.end()) {
+            Dispense((denomination)iter->first, iter->second);
+            iter++;
+        }
+        return true;
     }
-    
-    // remove the amount of denomination from till
-    iter = returnCoins.begin();
-    while(iter != returnCoins.end()) {
-        Dispense((denomination)iter->first, iter->second);
-        iter++;
-    }
-    return true;
-}
-
     // Greedy + DFS
     for (int i = startIndex; i >= 0; i--) {
        currentAmount += coin[i];
