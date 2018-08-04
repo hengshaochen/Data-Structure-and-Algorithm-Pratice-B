@@ -98,7 +98,8 @@ void CashRegister::ReportError( char *text ) const
 //              Use Depth First Search + Greedy(Prefer to use Large denomination) to find all possible solution and if the current amount is equal to amountOwed AND all the amount of denomination in till > amount of denomination in returnCoins --> it is a valid answer.
 void CashRegister::MakeChange( double amountPaid, double amountOwed ) {
     bool find = dfsHelper(numsDenomination - 1, 0, amountOwned);
-    // print out the answer if exist
+
+    // print out the answer if exist (just for testing)
     map<denomination, int>::iterator it;
     if (find == true) {
         // found a valid answer, print it out.
@@ -129,7 +130,7 @@ bool CashRegister::dfsHelper(double startIndex, double currentAmount, double amo
             iter++;
         }
         
-        // remove the amount of denomination from till
+        // remove the amount of denomination from till and give them to customer
         iter = returnCoins.begin();
         while(iter != returnCoins.end()) {
             Dispense((denomination)iter->first, iter->second);
